@@ -23,13 +23,25 @@ function getRandomShapeOptions(circle: boolean = false) {
     }
 }
 
-
+const size = Math.round(0.9 * Math.min(window.innerHeight, window.innerWidth));
 const puppetCanvas = new fabric.Canvas("puppet-canvas",
     {
-        height: 400,
-        width: 400
+        height: size,
+        width: size
     }
 );
+
+let lastResize = new Date();
+window.addEventListener("resize", (ev: Event) => {
+    const now = new Date();
+    lastResize = now;
+    const size = Math.round(0.9 * Math.min(window.innerHeight, window.innerWidth));
+    // Debounce the window resizing to reduce lag.
+    setTimeout(() => {
+        if (lastResize === now) puppetCanvas.setDimensions({ width: size, height: size });
+    }, 400)
+})
+
 document.getElementById("add-rectangle-btn")?.addEventListener(
     "click", (ev: MouseEvent) => {
         const newShape = new fabric.Rect(getRandomShapeOptions());
@@ -74,7 +86,7 @@ document.getElementById("toggle-shadow-btn")?.addEventListener(
                 format: "png"
             });
             shadowImage.setAttribute("src", overlayImageUrl);
-             fabric.Image.fromURL(overlayImageUrl, img => {
+            fabric.Image.fromURL(overlayImageUrl, img => {
                 img.setOptions({
                     selectable: false,
                     evented: false
@@ -94,7 +106,7 @@ document.getElementById("toggle-shadow-btn")?.addEventListener(
         } else {
             puppetCanvas.remove(fabricShadowImage);
             puppetCanvas.forEachObject(o => {
-                o.setOptions({ 
+                o.setOptions({
                     opacity: 1,
                     selectable: true,
                     evented: true,
@@ -103,4 +115,3 @@ document.getElementById("toggle-shadow-btn")?.addEventListener(
         }
         puppetCanvas.requestRenderAll();
     });
-    

@@ -10,8 +10,13 @@
 </head>
 
 <body>
-    <div id="puppet-container" class="flex flex-row max-w-md">
-        <div id="puppet-controls-container" class="w-min h-full flex-col" style>
+    <div id="puppet-container" class="flex flex-col max-w-md">
+        
+        <div id="canvas-container">
+            <img id="shadow-image" src=""  style="display:none;" />
+            <canvas id="puppet-canvas"></canvas>
+        </div>
+        <div id="puppet-controls-container" class="w-min h-full flex flex-row" style>
             <button id="add-rectangle-btn" class="shape-button">
                 <svg viewBox="0 0 50 50">
                     <rect width="50" height="50" />
@@ -38,13 +43,7 @@
                         C5,1.2239,5.2239,1,5.5,1h4C9.7761,1,10,1.2239,10,1.5V3h2.5C12.7761,3,13,3.2239,13,3.5z M9,3V2H6v1H9z" />
                 </svg>
             </button>
-        </div>
-        <div id="canvas-container">
-            <img id="shadow-image" src=""  style="display:none;" />
-            <canvas id="puppet-canvas"></canvas>
-        </div>
-        <div id="shadow-btn-container" class="w-min">
-            <button id="toggle-shadow-btn" class="shape-button">
+            <button id="toggle-shadow-btn" class="shape-button" style="margin-left: 2rem">
                 <?xml version="1.0"?>
                 <svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg"
                     xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -97,7 +96,6 @@
                         </rdf:RDF>
                     </metadata>
                 </svg>
-
             </button>
         </div>
     </div>
