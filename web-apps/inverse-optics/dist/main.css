@@ -31881,10 +31881,30 @@ video {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body{
+body, #global-container {
   height: 100%;
   width: 100%;
-  padding: 1rem;
+}
+
+canvas{
+  border: 4px solid black;
+}
+
+canvas, #canvas-container{
+  border-radius: 12px;
+}
+
+#canvas-container{
+  background-color: white;
+}
+
+#canvas-container.shadow-mode{
+  background-color: cornsilk;
+}
+
+#global-container {
+  background-color: white;
+  padding: 2rem;
 }
 
 .shape-button {
@@ -31895,8 +31915,17 @@ body{
   width: 2rem;
 }
 
-canvas{
-  border: 4px solid black
+#toggle-shadow-btn.shadow-mode > svg {
+  fill: cornsilk;
+  stroke: black;
+}
+
+#global-container.shadow-mode {
+  background-color: dimgray;
+}
+
+#toggle-shadow-button, canvas, #global-container {
+  transition: all 400ms;
 }
 
 @media (min-width: 640px) {
