@@ -78,6 +78,11 @@ const styledElements = document.querySelectorAll([
     "#canvas-container",
     "#toggle-shadow-btn"
 ] as any);
+const shapeButtons = document.querySelectorAll([
+    "#add-rectangle-btn",
+    "#add-triangle-btn",
+    "#add-circle-btn",
+] as any);
 
 document.getElementById("toggle-shadow-btn")?.addEventListener(
     "click", (ev: MouseEvent) => {
@@ -85,6 +90,9 @@ document.getElementById("toggle-shadow-btn")?.addEventListener(
 
         puppetCanvas.discardActiveObject();
 
+        shapeButtons.forEach(el => {
+            el.disabled = shadowMode;
+        });
         if (shadowMode) {
             styledElements.forEach(el => {
                 el.classList.add("shadow-mode");
