@@ -27,7 +27,7 @@ const size = Math.round(0.9 * Math.min(window.innerHeight, window.innerWidth));
 const puppetCanvas = new fabric.Canvas("puppet-canvas",
     {
         height: size,
-        width: size
+        width: size,
     }
 );
 
@@ -70,10 +70,14 @@ let shadowMode: boolean = false;
 const shadowImage: HTMLImageElement = document.getElementById("shadow-image")! as HTMLImageElement;
 let fabricShadowImage: fabric.Image;
 const shadowFilters = [
-    // new (fabric.Image.filters as any).BlackWhite(),
     new fabric.Image.filters.BlendColor({ color: "black", mode: "multiply" }),
     new (fabric.Image.filters as any).Blur({ blur: 0.10 }),
 ];
+const styledElements = document.querySelectorAll([
+    "#global-container",
+    "#canvas-container",
+    "#toggle-shadow-btn"
+] as any);
 
 document.getElementById("toggle-shadow-btn")?.addEventListener(
     "click", (ev: MouseEvent) => {
@@ -82,6 +86,9 @@ document.getElementById("toggle-shadow-btn")?.addEventListener(
         puppetCanvas.discardActiveObject();
 
         if (shadowMode) {
+            styledElements.forEach(el => {
+                el.classList.add("shadow-mode");
+            })
             const overlayImageUrl = puppetCanvas.toDataURL({
                 format: "png"
             });
@@ -103,7 +110,11 @@ document.getElementById("toggle-shadow-btn")?.addEventListener(
                 fabricShadowImage = img;
             });
 
+
         } else {
+            styledElements.forEach(el => {
+                el.classList.remove("shadow-mode");
+            })
             puppetCanvas.remove(fabricShadowImage);
             puppetCanvas.forEachObject(o => {
                 o.setOptions({
