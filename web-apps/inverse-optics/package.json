@@ -1,0 +1,33 @@
+{
+  "name": "inverse-optics-example",
+  "version": "1.0.0",
+  "description": "A class activity that demonstrates the inverse optics problem in perception.",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "build:watch": "NODE_ENV=development webpack --watch",
+    "build:serve": "NODE_ENV=development webpack serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Logan Walls",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/fabric": "^4.5.2",
+    "autoprefixer": "^10.3.3",
+    "css-loader": "^6.2.0",
+    "mini-css-extract-plugin": "^2.2.1",
+    "postcss": "^8.3.6",
+    "postcss-loader": "^6.1.1",
+    "postcss-preset-env": "^6.7.0",
+    "style-loader": "^3.2.1",
+    "tailwindcss": "^2.2.9",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.2",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.1.0"
+  },
+  "dependencies": {
+    "fabric": "^4.6.0"
+  }
+}

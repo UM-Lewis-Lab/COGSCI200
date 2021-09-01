@@ -1,0 +1,22 @@
+/* ./your-css-folder/styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+}
+
+.shape-button {
+    padding: 1rem;
+}
+
+.shape-button > svg {
+    width: 2rem;
+}
+
+canvas{
+    border: 4px solid black
+}
