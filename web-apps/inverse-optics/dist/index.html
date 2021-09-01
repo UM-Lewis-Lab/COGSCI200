@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse Optics Example</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <div id="puppet-container" class="flex flex-row max-w-md">
+        <div id="puppet-controls-container" class="w-min h-full flex-col" style>
+            <button id="add-rectangle-btn" class="shape-button">
+                <svg viewBox="0 0 50 50">
+                    <rect width="50" height="50" />
+                </svg>
+            </button>
+            <button id="add-triangle-btn" class="shape-button">
+                <svg viewBox="0 0 50 50">
+                    <polygon points="0,50 50,50 25,0" />
+                </svg>
+            </button>
+            <button id="add-circle-btn" class="shape-button">
+                <svg viewBox="0 0 50 50">
+                    <circle r="25" cx="25" cy="25" />
+                </svg>
+            </button>
+            <button id="remove-shape-btn" class="shape-button">
+                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 15 15"
+                    style="enable-background:new 0 0 15 15;" xml:space="preserve">
+                    <path
+                        d="M12.41,5.58l-1.34,8c-0.0433,0.2368-0.2493,0.4091-0.49,0.41H4.42c-0.2407-0.0009-0.4467-0.1732-0.49-0.41l-1.34-8
+                        C2.5458,5.3074,2.731,5.0506,3.0035,5.0064C3.0288,5.0023,3.0544,5.0002,3.08,5h8.83c0.2761-0.0036,0.5028,0.2174,0.5064,0.4935
+                        C12.4168,5.5225,12.4146,5.5514,12.41,5.58z M13,3.5C13,3.7761,12.7761,4,12.5,4h-10C2.2239,4,2,3.7761,2,3.5S2.2239,3,2.5,3H5V1.5
+                        C5,1.2239,5.2239,1,5.5,1h4C9.7761,1,10,1.2239,10,1.5V3h2.5C12.7761,3,13,3.2239,13,3.5z M9,3V2H6v1H9z" />
+                </svg>
+            </button>
+        </div>
+        <div id="canvas-container">
+            <img id="shadow-image" src=""  style="display:none;" />
+            <canvas id="puppet-canvas"></canvas>
+        </div>
+        <div id="shadow-btn-container" class="w-min">
+            <button id="toggle-shadow-btn" class="shape-button">
+                <?xml version="1.0"?>
+                <svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+                    xmlns:svg="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+                    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+                    xmlns:ns1="http://sozi.baierouge.fr" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg5408"
+                    viewBox="0 0 784.77 784.77" version="1.1">
+                    <g id="layer1" transform="translate(546.67 -105.69)">
+                        <g id="g5391" transform="translate(228.43 -129.04)">
+                            <path id="path5363"
+                                d="m452.31 114.89c0 216.71-175.68 392.38-392.38 392.38-216.71 0-392.38-175.68-392.38-392.38 0-216.71 175.68-392.38 392.38-392.38 216.71 0 392.38 175.68 392.38 392.38z"
+                                transform="translate(-442.64 512.23)" />
+                            <path id="path5367"
+                                d="m-382.85 331.26c-1.4841 0.003-161.79 0.68144-161.79 169.35 0 108.58 73.691 148.83 68.547 158.26l16.129 57.206h3.5281c-12.541 0-22.681 10.14-22.681 22.681s10.14 22.681 22.681 22.681h26.209l-34.777 13.357c-11.705 4.5026-17.607 17.78-13.104 29.485 4.5026 11.705 17.528 17.355 29.233 12.852l140.12-53.93c1.39-0.53467 2.5642-1.257 3.7802-2.0161 0.081-0.005 0.1726 0.007 0.2516 0 11.73-0.87481 20.917-10.468 20.917-22.429 0-12.197-9.6098-22.145-21.673-22.681l16.129-57.206c-5.1444-9.4314 68.547-49.678 68.547-158.26 0-168.67-160.31-169.35-161.79-169.35zm-57.962 39.314v0.50402c8.212-2.0345 12.015 11.339 1.3353 14.497-32.117 9.0798-51.233 49.766-51.233 49.766-6.5827 11.424-18.952 3.5606-14.259-4.5992 5.495-14.898 29.11-51.858 64.157-60.167zm124.74 405.99c-2.9395-0.0936-5.8941 0.38629-8.8203 1.5121l-140.12 53.93c-11.705 4.5026-17.607 17.528-13.104 29.233 1.6884 4.3893 4.7459 7.836 8.3163 10.332 1.9029 2.3315 4.0893 4.4258 6.8043 6.0482l66.53 39.566c4.5189 3.7014 10.121 5.8269 15.877 5.7962 5.6138 0.0855 11.136-1.8183 15.625-5.2922l67.034-40.07c12.358-7.3846 16.589-23.465 9.5764-36.037-7.0129-12.572-22.672-16.709-35.029-9.3244l-57.206 34.021-18.649-11.088 90.472-34.777c11.705-4.5025 17.607-17.528 13.104-29.233-3.3769-8.7786-11.594-14.337-20.413-14.617z"
+                                fill="#fff" />
+                        </g>
+                    </g>
+                    <metadata>
+                        <rdf:RDF>
+                            <cc:Work>
+                                <dc:format>image/svg+xml</dc:format>
+                                <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+                                <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/" />
+                                <dc:publisher>
+                                    <cc:Agent rdf:about="http://openclipart.org/">
+                                        <dc:title>Openclipart</dc:title>
+                                    </cc:Agent>
+                                </dc:publisher>
+                                <dc:title>Light Bulb Icon</dc:title>
+                                <dc:date>2013-10-21T15:13:47</dc:date>
+                                <dc:description>Light Bulb Icon</dc:description>
+                                <dc:source>https://openclipart.org/detail/185270/light-bulb-icon-by-minduka-185270
+                                </dc:source>
+                                <dc:creator>
+                                    <cc:Agent>
+                                        <dc:title>Minduka</dc:title>
+                                    </cc:Agent>
+                                </dc:creator>
+                                <dc:subject>
+                                    <rdf:Bag>
+                                        <rdf:li>Light Bulb Icon</rdf:li>
+                                    </rdf:Bag>
+                                </dc:subject>
+                            </cc:Work>
+                            <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+                                <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+                                <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+                                <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+                            </cc:License>
+                        </rdf:RDF>
+                    </metadata>
+                </svg>
+
+            </button>
+        </div>
+    </div>
+</body>
+<script src="main.js"></script>
+
+</html>
