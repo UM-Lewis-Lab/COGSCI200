@@ -1,7 +1,7 @@
 {
-  "name": "inverse-optics-example",
+  "name": "reverse-optics-example",
   "version": "1.0.0",
-  "description": "A class activity that demonstrates the inverse optics problem in perception.",
+  "description": "A class activity that demonstrates the reverse optics problem in perception.",
   "main": "index.js",
   "scripts": {
     "build": "webpack",
