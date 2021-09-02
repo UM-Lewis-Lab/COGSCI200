@@ -56,7 +56,18 @@ document.getElementById("add-circle-btn")?.addEventListener(
     "click", (ev: MouseEvent) => {
         const newShape = new fabric.Circle(getRandomShapeOptions(true));
         puppetCanvas.add(newShape)
-        newShape.set
+    });
+document.getElementById("add-star-btn")?.addEventListener(
+    "click", (ev: MouseEvent) => {
+        const newShape = new fabric.Polygon([
+            { x: 50, y: 5 },
+            { x: 20, y: 99 },
+            { x: 95, y: 39 },
+            { x: 5, y: 39 },
+            { x: 80, y: 99 },
+        ], getRandomShapeOptions(false));
+        puppetCanvas.add(newShape);
+        puppetCanvas.requestRenderAll();
     });
 document.getElementById("remove-shape-btn")?.addEventListener(
     "click", (ev: MouseEvent) => {
