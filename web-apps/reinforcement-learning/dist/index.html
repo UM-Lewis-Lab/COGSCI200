@@ -214,10 +214,10 @@
       this.walls = [];
       var pad = 10;
       util_add_box(this.walls, pad, pad, this.W - pad * 2, this.H - pad * 2);
-      util_add_box(this.walls, 100, 100, 200, 300); // inner walls
-      this.walls.pop();
-      util_add_box(this.walls, 400, 100, 200, 300);
-      this.walls.pop();
+      // util_add_box(this.walls, 100, 100, 200, 300); // inner walls
+      // this.walls.pop();
+      // util_add_box(this.walls, 400, 100, 200, 300);
+      // this.walls.pop();
 
       // set up food and poison
       this.items = []
@@ -408,7 +408,7 @@
     // Eye sensor has a maximum range and senses walls
     var Eye = function (angle) {
       this.angle = angle; // angle relative to agent its on
-      this.max_range = 85;
+      this.max_range = 500;
       this.sensed_proximity = 85; // what the eye is seeing. will be set in world.tick()
       this.sensed_type = -1; // what does the eye see?
     }
@@ -455,12 +455,12 @@
       var opt = {};
       opt.temporal_window = temporal_window;
       opt.experience_size = 30000;
-      opt.start_learn_threshold = 1000;
+      opt.start_learn_threshold = 500;
       opt.gamma = getSliderValue(document.getElementById("gammaSlider"), sliders.gammaSlider);
-      opt.learning_steps_total = 200000;
-      opt.learning_steps_burnin = 3000;
+      opt.learning_steps_total = 10000;
+      opt.learning_steps_burnin = 150;
       opt.epsilon_min = getSliderValue(document.getElementById("epsilonSlider"), sliders.epsilonSlider);
-      opt.epsilon_test_time = 0.05;
+      opt.epsilon_test_time = 0.01;
       opt.layer_defs = layer_defs;
       opt.tdtrainer_options = tdtrainer_options;
 
@@ -639,7 +639,7 @@
           var e = a.eyes[ei];
           var sr = e.sensed_proximity;
           if (e.sensed_type === -1 || e.sensed_type === 0) {
-            ctx.strokeStyle = "rgb(0,0,0)"; // wall or nothing
+            ctx.strokeStyle = "rgb(200,200,200)"; // wall or nothing
           }
           if (e.sensed_type === 1) { ctx.strokeStyle = "rgb(150,255,150)"; } // sour berry
           if (e.sensed_type === 2) { ctx.strokeStyle = "rgb(150,150,255)"; } // ripe berry
@@ -720,9 +720,11 @@
 
     function startlearn() {
       w.agents[0].brain.learning = true;
+      reward_graph = new cnnvis.Graph();
     }
     function stoplearn() {
       w.agents[0].brain.learning = false;
+      reward_graph = new cnnvis.Graph();
     }
 
     function reload() {
@@ -770,10 +772,9 @@
         href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/rldemo.html">Andrej Karpathy's Demo</a>
     </p>
     <p>
-      Below is a 2D agent that has 9 eyes pointing in different angles ahead. Every eye senses 3 values
+      Below is a 2D agent that has 9 eyes pointing in different angles ahead. Every eye senses 4 values
       along its direction (up to a certain maximum visibility distance): distance to a wall, distance to
-      a green thing, or distance to a red thing. The agent navigates by using one of 5 actions that turn
-      it different angles.
+      a green circle, distance to a blue circle, or distance to a red circle. The agent navigates by using one of 5 actions that turn it different angles.
     </p>
     <p>
       The colored circles are berries:
@@ -828,7 +829,7 @@
       </div>
       <div class="sliderContainer" id="epsilonSliderContainer">
         <label for="epsilonSlider">
-          Epsilon
+          (Minimum) Epsilon
         </label>
         <input type="range" name="epsilonSlider" id="epsilonSlider" oninput="onSliderInput(this)">
         <div id="epsilonSliderExplanation"></div>
