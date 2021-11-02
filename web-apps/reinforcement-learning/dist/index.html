@@ -226,7 +226,7 @@
         var y = convnetjs.randf(20, this.H - 20);
         var t = convnetjs.randi(1, 4); // sour berry, ripe berry, poison berry (1, 2, and 3)
         // Make sour berries twice as common as ripe ones.
-        if ((t === 2) && (convnetjs.randi(0, 1) === 0)) {
+        if ((t === 2) && (convnetjs.randf(0, 1) <= 0.5)) {
           t = 1;
         }
         var it = new Item(x, y, t);
@@ -362,7 +362,7 @@
               var rescheck = this.stuff_collide_(a.p, it.p, true, false);
               if (!rescheck) {
                 // ding! nom nom nom
-                if (it.type === 1) a.digestion_signal += 2.0; // sour berry
+                if (it.type === 1) a.digestion_signal += 4.0; // sour berry
                 if (it.type === 2) a.digestion_signal += 10.0; // ripe berry
                 if (it.type === 3) a.digestion_signal += -11.0; // poison berry
                 it.cleanup_ = true;
@@ -385,12 +385,13 @@
           }
           this.items = nt; // swap
         }
+        // Randomly spawn new items to replace the ones the agent ate.
         if (this.items.length < 30 && this.clock % 10 === 0 && convnetjs.randf(0, 1) < 0.25) {
           var newitx = convnetjs.randf(20, this.W - 20);
           var newity = convnetjs.randf(20, this.H - 20);
           var newitt = convnetjs.randi(1, 4);
           // Make sour berries twice as common as ripe ones.
-          if ((newitt === 2) && (convnetjs.randi(0, 1) === 0)) {
+          if ((newitt === 2) && (convnetjs.randf(0, 1) <= 0.5)) {
             newitt = 1;
           }
           var newit = new Item(newitx, newity, newitt);
@@ -725,6 +726,7 @@
     }
 
     function reload() {
+      w = new World();
       w.agents = [new Agent()]; // this should simply work. I think... ;\
       reward_graph = new cnnvis.Graph(); // reinit
     }
