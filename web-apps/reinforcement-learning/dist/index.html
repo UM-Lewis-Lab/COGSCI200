@@ -112,7 +112,6 @@
       for (const sId in sliders) {
         var s = sliders[sId];
         var el = document.getElementById(sId);
-        console.log(el);
         el.min = 0;
         el.max = s.values.length - 1;
         el.value = s.default;
@@ -225,7 +224,11 @@
       for (var k = 0; k < 30; k++) {
         var x = convnetjs.randf(20, this.W - 20);
         var y = convnetjs.randf(20, this.H - 20);
-        var t = convnetjs.randi(1, 3); // food or poison (1 and 2)
+        var t = convnetjs.randi(1, 4); // sour berry, ripe berry, poison mushroom (1, 2, and 3)
+        // Make sour berries twice as common as ripe ones.
+        if ((t === 2) && (convnetjs.randi(0, 1) === 0)){
+          t = 1;
+        }
         var it = new Item(x, y, t);
         this.items.push(it);
       }
@@ -359,8 +362,9 @@
               var rescheck = this.stuff_collide_(a.p, it.p, true, false);
               if (!rescheck) {
                 // ding! nom nom nom
-                if (it.type === 1) a.digestion_signal += 5.0; // mmm delicious apple
-                if (it.type === 2) a.digestion_signal += -6.0; // ewww poison
+                if (it.type === 1) a.digestion_signal += 2.0; // sour berry
+                if (it.type === 2) a.digestion_signal += 10.0; // ripe berry
+                if (it.type === 3) a.digestion_signal += -11.0; // poison mushroom
                 it.cleanup_ = true;
                 update_items = true;
                 break; // break out of loop, item was consumed
@@ -632,8 +636,9 @@
           if (e.sensed_type === -1 || e.sensed_type === 0) {
             ctx.strokeStyle = "rgb(0,0,0)"; // wall or nothing
           }
-          if (e.sensed_type === 1) { ctx.strokeStyle = "rgb(255,150,150)"; } // apples
-          if (e.sensed_type === 2) { ctx.strokeStyle = "rgb(150,255,150)"; } // poison
+          if (e.sensed_type === 1) { ctx.strokeStyle = "rgb(150,255,150)"; } // sour berry
+          if (e.sensed_type === 2) { ctx.strokeStyle = "rgb(150,150,255)"; } // ripe berry
+          if (e.sensed_type === 3) { ctx.strokeStyle = "rgb(255,150,150)"; } // poison
           ctx.beginPath();
           ctx.moveTo(a.op.x, a.op.y);
           ctx.lineTo(a.op.x + sr * Math.sin(a.oangle + e.angle),
@@ -646,8 +651,9 @@
       ctx.strokeStyle = "rgb(0,0,0)";
       for (var i = 0, n = w.items.length; i < n; i++) {
         var it = w.items[i];
-        if (it.type === 1) ctx.fillStyle = "rgb(255, 150, 150)";
-        if (it.type === 2) ctx.fillStyle = "rgb(150, 255, 150)";
+        if (it.type === 1) ctx.fillStyle = "rgb(150, 255, 150)";
+        if (it.type === 2) ctx.fillStyle = "rgb(150, 150, 255)";
+        if (it.type === 3) ctx.fillStyle = "rgb(255, 150, 150)";
         ctx.beginPath();
         ctx.arc(it.p.x, it.p.y, it.rad, 0, Math.PI * 2, true);
         ctx.fill();
@@ -761,9 +767,16 @@
       Below is a 2D agent that has 9 eyes pointing in different angles ahead. Every eye senses 3 values
       along its direction (up to a certain maximum visibility distance): distance to a wall, distance to
       a green thing, or distance to a red thing. The agent navigates by using one of 5 actions that turn
-      it different angles. The red things are apples and the agent gets reward for eating them. The green
-      things are poison and the agent gets negative reward for eating them. The training takes a few tens
-      of minutes with current parameter settings.
+      it different angles.
+    </p>
+    <p>
+      The colored circles are berries:
+    <ul>
+      <li style="color:rgb(100,205,100)">Green berries are edible but sour (small reward)</li>
+      <li style="color:rgb(100,100,205)">Blue berries are
+        ripe and delicious (large reward)</li>
+      <li style="color:rgb(205,100,100)">Red berries are poisonous make the agent sick (negative reward)</li>
+    </ul>
     </p>
     <p>
       Over time, the agent learns to avoid states that lead to states with low rewards, and picks actions
