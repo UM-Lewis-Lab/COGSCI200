@@ -60,8 +60,8 @@
     // Sliders
     var sliders = {
       lrSlider: {
-        values: [0.00001, 0.001, 0.01, 0.1, 1.0],
-        explanations: ["0.00001", "0.001", "0.01", "0.1", "1.0"],
+        values: [0.00001, 0.001, 0.01, 0.1, 0.3],
+        explanations: ["0.00001", "0.001", "0.01", "0.1", "0.3"],
         default: 2,
         update: function (value) {
           console.log("Setting lr:", value);
@@ -78,9 +78,9 @@
         type: "slider",
       },
       epsilonSlider: {
-        values: [0.0, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0],
-        explanations: ["0.0", "0.05", "0.1", "0.25", "0.5", "0.75", "1.0"],
-        default: 2,
+        values: [0.05, 0.1, 0.25, 0.5, 0.75, 1.0],
+        explanations: ["0.05", "0.1", "0.25", "0.5", "0.75", "1.0"],
+        default: 0,
         update: function (value) {
           console.log("Setting epsilon:", value);
         },
@@ -362,7 +362,7 @@
               var rescheck = this.stuff_collide_(a.p, it.p, true, false);
               if (!rescheck) {
                 // ding! nom nom nom
-                if (it.type === 1) a.digestion_signal += 4.0; // sour berry
+                if (it.type === 1) a.digestion_signal += 2.0; // sour berry
                 if (it.type === 2) a.digestion_signal += 10.0; // ripe berry
                 if (it.type === 3) a.digestion_signal += -11.0; // poison berry
                 it.cleanup_ = true;
@@ -408,7 +408,7 @@
     // Eye sensor has a maximum range and senses walls
     var Eye = function (angle) {
       this.angle = angle; // angle relative to agent its on
-      this.max_range = 500;
+      this.max_range = 300;
       this.sensed_proximity = 85; // what the eye is seeing. will be set in world.tick()
       this.sensed_type = -1; // what does the eye see?
     }
@@ -433,7 +433,7 @@
       this.eyes = [];
       for (var k = 0; k < 9; k++) { this.eyes.push(new Eye((k - 3) * 0.25)); }
 
-      var num_inputs = 27; // 9 eyes, each sees 3 numbers (wall, green, red thing proximity)
+      var num_inputs =36; // 9 eyes, each sees 3 numbers (wall, green, red thing proximity)
       var num_actions = 5; // 5 possible angles agent can turn
       var temporal_window = 1; // amount of temporal memory. 0 = agent lives in-the-moment :)
       var network_size = num_inputs * temporal_window + num_actions * temporal_window + num_inputs;
@@ -455,12 +455,12 @@
       var opt = {};
       opt.temporal_window = temporal_window;
       opt.experience_size = 30000;
-      opt.start_learn_threshold = 500;
+      opt.start_learn_threshold = 1000;
       opt.gamma = getSliderValue(document.getElementById("gammaSlider"), sliders.gammaSlider);
-      opt.learning_steps_total = 10000;
-      opt.learning_steps_burnin = 150;
+      opt.learning_steps_total = 20000;
+      opt.learning_steps_burnin = 200;
       opt.epsilon_min = getSliderValue(document.getElementById("epsilonSlider"), sliders.epsilonSlider);
-      opt.epsilon_test_time = 0.01;
+      opt.epsilon_test_time = 0.05;
       opt.layer_defs = layer_defs;
       opt.tdtrainer_options = tdtrainer_options;
 
@@ -483,16 +483,17 @@
         // in forward pass the agent simply behaves in the environment
         // create input to brain
         var num_eyes = this.eyes.length;
-        var input_array = new Array(num_eyes * 3);
+        var input_array = new Array(num_eyes * 4);
         for (var i = 0; i < num_eyes; i++) {
           var e = this.eyes[i];
-          input_array[i * 3] = 1.0;
-          input_array[i * 3 + 1] = 1.0;
-          input_array[i * 3 + 2] = 1.0;
+          input_array[i * 4] = 1.0;
+          input_array[i * 4 + 1] = 1.0;
+          input_array[i * 4 + 2] = 1.0;
+          input_array[i * 4 + 3] = 1.0;
           if (e.sensed_type !== -1) {
             // sensed_type is 0 for wall, 1 for food and 2 for poison.
             // lets do a 1-of-k encoding into the input array
-            input_array[i * 3 + e.sensed_type] = e.sensed_proximity / e.max_range; // normalize to [0,1]
+            input_array[i * 4 + e.sensed_type] = e.sensed_proximity / e.max_range; // normalize to [0,1]
           }
         }
 
@@ -516,7 +517,7 @@
         for (var i = 0; i < num_eyes; i++) {
           var e = this.eyes[i];
           // agents dont like to see walls, especially up close
-          proximity_reward += e.sensed_type === 0 ? e.sensed_proximity / e.max_range : 1.0;
+          proximity_reward += e.sensed_type === 0 ? Math.min((e.sensed_proximity * (80.0 / e.max_range)) / e.max_range, 1.0) : 1.0;
         }
         proximity_reward = proximity_reward / num_eyes;
         proximity_reward = Math.min(1.0, proximity_reward * 2);
