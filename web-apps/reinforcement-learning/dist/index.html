@@ -517,7 +517,7 @@
         for (var i = 0; i < num_eyes; i++) {
           var e = this.eyes[i];
           // agents dont like to see walls, especially up close
-          proximity_reward += e.sensed_type === 0 ? Math.min((e.sensed_proximity * (80.0 / e.max_range)) / e.max_range, 1.0) : 1.0;
+          proximity_reward += e.sensed_type === 0 ? Math.min((e.sensed_proximity * (e.max_range / 80.0)) / e.max_range, 1.0) : 1.0;
         }
         proximity_reward = proximity_reward / num_eyes;
         proximity_reward = Math.min(1.0, proximity_reward * 2);
