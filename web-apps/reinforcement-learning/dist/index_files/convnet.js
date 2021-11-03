@@ -1,6 +1,12 @@
 var convnetjs = convnetjs || { REVISION: 'ALPHA' };
 (function(global) {
   "use strict";
+  var rng = new Math.seedrandom('thisisaseed.');
+  var seed = function(seed) {
+    rng = new Math.seedrandom(seed);
+  }
+  global.rng = rng;
+  global.seed = seed;
 
   // Random number utilities
   var return_v = false;
@@ -10,8 +16,8 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
       return_v = false;
       return v_val; 
     }
-    var u = 2*Math.random()-1;
-    var v = 2*Math.random()-1;
+    var u = 2*rng()-1;
+    var v = 2*rng()-1;
     var r = u*u + v*v;
     if(r == 0 || r > 1) return gaussRandom();
     var c = Math.sqrt(-2*Math.log(r)/r);
@@ -19,8 +25,8 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
     return_v = true;
     return u*c;
   }
-  var randf = function(a, b) { return Math.random()*(b-a)+a; }
-  var randi = function(a, b) { return Math.floor(Math.random()*(b-a)+a); }
+  var randf = function(a, b) { return rng()*(b-a)+a; }
+  var randi = function(a, b) { return Math.floor(rng()*(b-a)+a); }
   var randn = function(mu, std){ return mu+gaussRandom()*std; }
 
   // Array utilities
@@ -76,7 +82,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
     var array = [];
     for(var q=0;q<n;q++)array[q]=q;
     while (i--) {
-        j = Math.floor(Math.random() * (i+1));
+        j = Math.floor(rng() * (i+1));
         temp = array[i];
         array[i] = array[j];
         array[j] = temp;
@@ -1358,7 +1364,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
       if(is_training) {
         // do dropout
         for(var i=0;i<N;i++) {
-          if(Math.random()<this.drop_prob) { V2.w[i]=0; this.dropped[i] = true; } // drop!
+          if(rng()<this.drop_prob) { V2.w[i]=0; this.dropped[i] = true; } // drop!
           else {this.dropped[i] = false;}
         }
       } else {
@@ -1941,7 +1947,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
         var ni = randi(this.neurons_min, this.neurons_max);
         var act = ['tanh','maxout','relu'][randi(0,3)];
         if(randf(0,1)<0.5) {
-          var dp = Math.random();
+          var dp = rng();
           layer_defs.push({type:'fc', num_neurons: ni, activation: act, drop_prob: dp});
         } else {
           layer_defs.push({type:'fc', num_neurons: ni, activation: act});
