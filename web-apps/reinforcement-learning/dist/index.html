@@ -208,6 +208,7 @@
       this.agents = [];
       this.W = canvas.width;
       this.H = canvas.height;
+      this.max_items = 15;
 
       this.clock = 0;
 
@@ -222,13 +223,16 @@
 
       // set up food and poison
       this.items = []
-      for (var k = 0; k < 30; k++) {
+      for (var k = 0; k < this.max_items; k++) {
         var x = convnetjs.randf(20, this.W - 20);
         var y = convnetjs.randf(20, this.H - 20);
-        var t = convnetjs.randi(1, 4); // sour berry, ripe berry, poison berry (1, 2, and 3)
-        // Make sour berries twice as common as ripe ones.
-        if ((t === 2) && (convnetjs.randf(0, 1) <= 0.5)) {
-          t = 1;
+        var t = convnetjs.randf(0, 1);
+        if (t <= 0.6) {
+          t = 1; // sour berry
+        } else if (t <= 0.8) {
+          t = 2; // ripe berry
+        } else {
+          t = 3; // poison berry
         }
         var it = new Item(x, y, t);
         this.items.push(it);
@@ -387,13 +391,16 @@
           this.items = nt; // swap
         }
         // Randomly spawn new items to replace the ones the agent ate.
-        if (this.items.length < 30 && this.clock % 10 === 0 && convnetjs.randf(0, 1) < 0.25) {
+        if (this.items.length < this.max_items && this.clock % 10 === 0 && convnetjs.randf(0, 1) < 0.25) {
           var newitx = convnetjs.randf(20, this.W - 20);
           var newity = convnetjs.randf(20, this.H - 20);
-          var newitt = convnetjs.randi(1, 4);
-          // Make sour berries twice as common as ripe ones.
-          if ((newitt === 2) && (convnetjs.randf(0, 1) <= 0.5)) {
-            newitt = 1;
+          var newitt = convnetjs.randf(0, 1);
+          if (newitt <= 0.6) {
+            newitt = 1; // sour berry
+          } else if (newitt <= 0.8) {
+            newitt = 2; // ripe berry
+          } else {
+            newitt = 3; // poison berry
           }
           var newit = new Item(newitx, newity, newitt);
           this.items.push(newit);
@@ -518,7 +525,7 @@
         for (var i = 0; i < num_eyes; i++) {
           var e = this.eyes[i];
           // agents dont like to see walls, especially up close
-          proximity_reward += (e.sensed_type === 0) && (e.sensed_proximity <= 30) ? e.sensed_proximity / e.max_range : 1.0;
+          proximity_reward += (e.sensed_type === 0) && (e.sensed_proximity <= 15) ? e.sensed_proximity / e.max_range : 1.0;
         }
         proximity_reward = proximity_reward / num_eyes;
         proximity_reward = Math.min(1.0, proximity_reward * 2);
