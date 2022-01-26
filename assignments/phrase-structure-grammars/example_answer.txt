@@ -1,0 +1,10 @@
+[S
+  [NP RSyntaxTree]
+  [VP
+    [V generates]
+    [NP 
+      [Adj multilingual] 
+      [NP syntax trees]
+    ]
+  ]
+]
