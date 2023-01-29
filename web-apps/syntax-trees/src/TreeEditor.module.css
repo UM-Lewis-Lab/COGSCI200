@@ -1,0 +1,17 @@
+.TreeEditor {
+  text-align: center;
+}
+
+.syntaxTreeContainer {
+  width: 90%;
+}
+
+.syntaxTree {
+  width: 100%;
+  height: auto;
+}
+
+.syntaxTreeLabel {
+  font: bold 0.25rem sans-serif;
+  fill: white;
+}

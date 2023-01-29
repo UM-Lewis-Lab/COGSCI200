@@ -1,0 +1,10 @@
+{
+  "plugins": ["functional"],
+  "rules": {
+    "functional/prefer-readonly-type": "error"
+  }
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  }
+}
