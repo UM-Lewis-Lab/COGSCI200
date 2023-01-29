@@ -2,19 +2,13 @@ import { Component, createEffect, createSignal, For } from "solid-js";
 import { parse, SyntaxTree } from "./parser";
 import styles from "./TreeEditor.module.css";
 
-type SyntaxTreeNode = {
-  label: string;
-  x: number;
-  y: number;
-};
-
-const TreeNode: Component<{ node: SyntaxTreeNode }> = (props) => {
+const TreeNode: Component<{ node: SyntaxTree }> = (props) => {
   const node = props.node;
   const xPad = 0;
   const yPad = 0.05;
 
-  const x = ((node.x + xPad) / (1 + 2 * xPad)) * 100;
-  const y = ((node.y + yPad) / (1 + 2 * yPad)) * 100;
+  const x = ((node.layout.x + xPad) / (1 + 2 * xPad)) * 100;
+  const y = ((node.layout.y + yPad) / (1 + 2 * yPad)) * 100;
   return (
     <text x={x} y={y} text-anchor="middle" class={styles.syntaxTreeLabel}>
       {node.label}
@@ -27,51 +21,20 @@ const TreeEditor: Component = () => {
   const closingDelimiter = "]";
   const defaultTree = "[S [NP [det The] [N cat]] [VP [V meowed]]]";
   const [src, setSrc] = createSignal(defaultTree);
-  const [nodes, setNodes] = createSignal(Array<SyntaxTreeNode>());
+  const [nodes, setNodes] = createSignal(Array<SyntaxTree>());
 
-  const createNodes = (
+  const flattenTree = (
     tree: SyntaxTree,
-    rootWidth: number,
-    maxDepth: number,
-    result: SyntaxTreeNode[] = [],
-    depth: number = 0,
-    rootXUnscaled: number = 0
-  ) => {
-    // Calculate the X coordinate for this node
-    const subTreeWidths = tree.subTreeWidths;
-    const offset = subTreeWidths.reduce((a, b) => a + b, 0) / 2;
-    const nodeXUnscaled = rootXUnscaled + offset;
-    console.log(tree.label, rootXUnscaled, offset, tree.subTreeWidths);
-
-    // Create the node
-    const node = {
-      label: tree.label,
-      x: nodeXUnscaled / rootWidth,
-      y: depth / maxDepth,
-    };
-    result.push(node);
-
-    // Create nodes for children
-    tree.children.forEach((t, i) => {
-      let x: number;
-      if (i / tree.children.length < 0.5) {
-        x = rootXUnscaled;
-      } else {
-        x = nodeXUnscaled;
-      }
-      createNodes(t, rootWidth, maxDepth, result, depth + 1, x);
-    });
+    result: SyntaxTree[] = []
+  ): SyntaxTree[] => {
+    result.push(tree);
+    tree.children.forEach((t) => flattenTree(t, result));
     return result;
   };
+
   createEffect(() => {
-    const [tree, maxDepth] = parse(src(), openingDelimiter, closingDelimiter);
-    setNodes(
-      createNodes(
-        tree,
-        (tree.subTreeWidths || [0]).reduce((a, b) => a + b, 0),
-        maxDepth
-      )
-    );
+    const tree = parse(src(), openingDelimiter, closingDelimiter);
+    setNodes(flattenTree(tree));
   });
 
   return (
