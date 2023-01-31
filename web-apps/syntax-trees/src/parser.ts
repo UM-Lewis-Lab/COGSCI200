@@ -1,12 +1,25 @@
 export type SyntaxTree = {
+  id: number;
   label: string;
   children: SyntaxTree[];
   leftSubtreeWidth: number;
   rightSubtreeWidth: number;
+  sourceStart: number;
+  sourceEnd: number;
+  labelStart: number;
+  labelEnd: number;
   layout: { x: number; y: number };
 };
 
-type StopIndex = number;
+export class ParsingError extends Error {
+  start?: number;
+  end?: number;
+  constructor(message: string, start?: number, end?: number) {
+    super(message);
+    this.start = start;
+    this.end = end;
+  }
+}
 
 const preprocess = (
   src: string,
@@ -29,30 +42,40 @@ const preprocess = (
         end = i;
       }
     } else if (c.match(/[^\s]/) && depth == 0) {
-      throw Error("Cannot have a lexical item outside of the tree");
+      throw new ParsingError(
+        "Cannot have a lexical item outside of the tree",
+        i
+      );
     }
   });
   if (depth < 0) {
-    throw Error(`${-depth} extra ${closingDelimiter}`);
+    throw new ParsingError(`${-depth} missing ${openingDelimiter}`);
   } else if (depth > 0) {
-    throw Error(`${depth} extra ${openingDelimiter}`);
+    throw new ParsingError(`${depth} missing ${closingDelimiter}`);
   }
   // Trim off the start and end delimiters
   return chars.slice(start + 1, end);
 };
 
 type IntermediateParse = {
+  id: number;
   label: string;
   children: IntermediateParse[];
   leftSubtreeWidth?: number;
   rightSubtreeWidth?: number;
+  sourceStart: number;
+  sourceEnd: number;
+  labelStart: number;
+  labelEnd: number;
   layout?: { x: number; y: number };
 };
-
+type StopIndex = number;
 const _parse = (
   input: string[],
   openingDelimiter: string,
-  closingDelimiter: string
+  closingDelimiter: string,
+  offset: number = 0,
+  id: number = 0
 ): [IntermediateParse, StopIndex] => {
   let label = "";
   let children: IntermediateParse[] = [];
@@ -70,8 +93,7 @@ const _parse = (
     i++;
   }
   if (!label) {
-    console.log(input);
-    throw Error("This node needs a label");
+    throw new ParsingError("This node needs a label", offset);
   }
 
   // Find children
@@ -83,7 +105,9 @@ const _parse = (
       let [child, stopIndex] = _parse(
         input.slice(i + 1),
         openingDelimiter,
-        closingDelimiter
+        closingDelimiter,
+        offset + i,
+        id + 1 + children.length
       );
       i += stopIndex;
       children.push(child);
@@ -103,6 +127,7 @@ const _parse = (
       throw Error("A lexical item must be the only child of its parent node");
     }
     // The lexical item ends at i - 1 because i includes the closing delimiter
+    const lexicalItemEnd = i - 1;
     const lexicalItemLabel = input
       .slice(lexicalItemStart, i - 1)
       .join("")
@@ -112,11 +137,27 @@ const _parse = (
     }
     // Lexical item ended
     children.push({
+      id: id + 1 + children.length,
       label: lexicalItemLabel,
       children: [],
+      sourceStart: lexicalItemStart + offset,
+      sourceEnd: lexicalItemEnd + offset,
+      labelStart: lexicalItemStart + offset,
+      labelEnd: lexicalItemEnd + offset,
     });
   }
-  return [{ label: label, children: children }, i];
+  return [
+    {
+      id: id,
+      label: label,
+      children: children,
+      sourceStart: offset,
+      sourceEnd: i + offset,
+      labelStart: labelStart + offset,
+      labelEnd: labelStart + label.length + offset,
+    },
+    i,
+  ];
 };
 
 const getStats = (
@@ -143,7 +184,7 @@ const normalizeLayout = (
   totalWidth: number
 ) => {
   tree.layout = {
-    x: (tree.layout.x + 1) / (totalWidth + 2),
+    x: (tree.layout.x + 1) / (totalWidth + 3),
     y: tree.layout.y / maxDepth,
   };
   tree.children.forEach((c) => normalizeLayout(c, maxDepth, totalWidth));

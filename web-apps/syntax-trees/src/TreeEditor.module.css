@@ -1,9 +1,17 @@
+:root {
+  --st-background: #1e1e2e;
+  --st-text: #cdd6f4;
+  --st-category-color: #74c7ec;
+  --st-lex-item-color: #fab387;
+}
+
 .TreeEditor {
   text-align: center;
 }
 
 .syntaxTreeContainer {
-  width: 90%;
+  width: 100%;
+  display: flex;
 }
 
 .syntaxTree {
@@ -13,12 +21,17 @@
 
 .syntaxTreeLabel {
   font: bold 0.25rem sans-serif;
-  fill: #74c7ec;
+}
+
+.categoryLabel {
+  fill: var(--st-category-color);
+  color: var(--st-category-color);
 }
 
 .lexicalItemLabel {
   font-weight: normal;
-  fill: #fab387;
+  fill: var(--st-lex-item-color);
+  color: var(--st-lex-item-color);
 }
 
 .syntaxTreeLink {
@@ -26,3 +39,33 @@
   stroke-width: 0.5;
   stroke-linecap: round;
 }
+
+.syntaxTreeCodeArea {
+  width: 80%;
+  height: 30rem;
+  font: normal 1rem monospace;
+  text-align: left;
+  background: var(--st-background);
+  color: var(--st-text);
+}
+
+/* TODO: change class name*/
+.treeArea {
+  width: 100%;
+  height: auto;
+}
+
+.errorBox {
+  background: red;
+}
+
+.highlightedCode {
+  color: red;
+}
+
+/* .sourceNode { */
+/* } */
+
+/* .sourceLabel { */
+/*   color: green; */
+/* } */

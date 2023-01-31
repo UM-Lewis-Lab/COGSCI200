@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@mobily/ts-belt": "^3.13.1",
+    "@solid-primitives/scheduled": "^1.2.1",
     "solid-js": "^1.6.6"
   }
 }
