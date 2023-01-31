@@ -1,7 +1,8 @@
 export type SyntaxTree = {
   label: string;
   children: SyntaxTree[];
-  subTreeWidths: number[];
+  leftSubtreeWidth: number;
+  rightSubtreeWidth: number;
   layout: { x: number; y: number };
 };
 
@@ -11,10 +12,9 @@ const preprocess = (
   src: string,
   openingDelimiter: string,
   closingDelimiter: string
-): [string[], number] => {
+): string[] => {
   const chars = [...src];
   let depth = 0;
-  let maxDepth = 0;
   let start: number = 0;
   let end: number = chars.length;
   chars.forEach((c, i) => {
@@ -23,9 +23,6 @@ const preprocess = (
         start = i;
       }
       depth++;
-      if (depth > maxDepth) {
-        maxDepth = depth;
-      }
     } else if (c == closingDelimiter) {
       depth--;
       if (depth == 0) {
@@ -41,13 +38,14 @@ const preprocess = (
     throw Error(`${depth} extra ${openingDelimiter}`);
   }
   // Trim off the start and end delimiters
-  return [chars.slice(start + 1, end), maxDepth];
+  return chars.slice(start + 1, end);
 };
 
 type IntermediateParse = {
   label: string;
   children: IntermediateParse[];
-  subTreeWidths?: number[];
+  leftSubtreeWidth?: number;
+  rightSubtreeWidth?: number;
   layout?: { x: number; y: number };
 };
 
@@ -121,45 +119,62 @@ const _parse = (
   return [{ label: label, children: children }, i];
 };
 
-const addSubtreeWidths = (tree: IntermediateParse) => {
+const getStats = (
+  tree: IntermediateParse,
+  depth: number = 0
+): [number, number] => {
   if (tree.children.length == 0) {
-    tree.subTreeWidths = [tree.label.length];
-  } else {
-    tree.children.forEach(addSubtreeWidths);
-    tree.subTreeWidths = tree.children.map((t) =>
-      (t.subTreeWidths || [0]).reduce((a, b) => a + b, 0)
-    );
+    return [depth, tree.label.length];
   }
+  return tree.children
+    .map((t) => getStats(t, depth + 1))
+    .reduce(
+      ([runningDepth, runningWidth], [cDepth, cWidth]) => [
+        Math.max(runningDepth, cDepth),
+        runningWidth + cWidth,
+      ],
+      [0, 0]
+    );
 };
 
-const addStructure = (
+const normalizeLayout = (
+  tree: SyntaxTree,
+  maxDepth: number,
+  totalWidth: number
+) => {
+  tree.layout = {
+    x: (tree.layout.x + 1) / (totalWidth + 2),
+    y: tree.layout.y / maxDepth,
+  };
+  tree.children.forEach((c) => normalizeLayout(c, maxDepth, totalWidth));
+};
+
+const addLayout = (
   tree: IntermediateParse,
-  rootWidth: number,
   maxDepth: number,
   depth: number = 0,
-  rootXUnscaled: number = 0
-) => {
-  // Calculate the X coordinate for this node
-  const subTreeWidths = tree.subTreeWidths;
-  const offset = (subTreeWidths || []).reduce((a, b) => a + b, 0) / 2;
-  const nodeXUnscaled = rootXUnscaled + offset;
-
-  // Create the node
-  tree.layout = {
-    x: nodeXUnscaled / rootWidth,
-    y: depth / maxDepth,
-  };
-
-  // Create nodes for children
-  tree.children.forEach((t, i) => {
-    let x: number;
-    if (i / tree.children.length < 0.5) {
-      x = rootXUnscaled;
-    } else {
-      x = nodeXUnscaled;
-    }
-    addStructure(t, rootWidth, maxDepth, depth + 1, x);
+  accumulatedWidth: number = 0
+): number => {
+  // Recurse to children first so we know how far on the x-axis
+  // this node's subtree goes.
+  let curWidth = accumulatedWidth;
+  tree.children.forEach((c) => {
+    curWidth = addLayout(c, maxDepth, depth + 1, curWidth);
   });
+  let x: number;
+  if (tree.children.length == 0) {
+    x = curWidth + 0.5 * tree.label.length;
+  } else {
+    // If the node has children, put it in the center of them
+    const childXs = tree.children.map((c) => c.layout?.x || 0);
+    x = childXs.reduce((a, b) => a + b, 0) / tree.children.length;
+  }
+  // Set the layout
+  tree.layout = { x: x, y: depth };
+  if (tree.children.length == 0) {
+    curWidth += tree.label.length;
+  }
+  return curWidth;
 };
 
 export const parse = (
@@ -167,13 +182,10 @@ export const parse = (
   openingDelimiter: string,
   closingDelimiter: string
 ): SyntaxTree => {
-  const [input, maxDepth] = preprocess(src, openingDelimiter, closingDelimiter);
+  const input = preprocess(src, openingDelimiter, closingDelimiter);
   const [tree, _] = _parse(input, openingDelimiter, closingDelimiter);
-  addSubtreeWidths(tree);
-  addStructure(
-    tree,
-    (tree.subTreeWidths || []).reduce((a, b) => a + b, 0),
-    maxDepth
-  );
+  const [maxDepth, totalWidth] = getStats(tree);
+  addLayout(tree, maxDepth);
+  normalizeLayout(tree as SyntaxTree, maxDepth, totalWidth);
   return tree as SyntaxTree;
 };

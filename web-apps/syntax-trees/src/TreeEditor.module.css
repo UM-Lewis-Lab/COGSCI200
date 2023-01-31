@@ -13,5 +13,16 @@
 
 .syntaxTreeLabel {
   font: bold 0.25rem sans-serif;
-  fill: white;
+  fill: #74c7ec;
+}
+
+.lexicalItemLabel {
+  font-weight: normal;
+  fill: #fab387;
+}
+
+.syntaxTreeLink {
+  stroke: #6c7086;
+  stroke-width: 0.5;
+  stroke-linecap: round;
 }
